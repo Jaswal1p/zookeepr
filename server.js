@@ -1,6 +1,8 @@
 const express = require('express');
 
 const { animals } = require('./data/animals');
+const fs = require('fs');
+const path = require('path');
 
 const PORT = process.env.PORT || 3001;
 
@@ -56,11 +58,14 @@ function findById(id, animalsArray) {
 }
 
 function createNewAnimal(body, animalsArray) {
-  console.log(body);
-  // our function's main code will go here!
-
-  // return finished code to post route for response
-  return body;
+  const animal = body;
+  animalsArray.push(animal);
+  fs.writeFileSync(
+    path.join(__dirname, './data/animals.json'),
+    JSON.stringify({ animals: animalsArray }, null, 2)
+  );
+  
+  return animal;
 }
 
 app.get('/api/animals', (req, res) => {
@@ -83,8 +88,11 @@ app.get('/api/animals/:id', (req, res) => {
 app.post('/api/animals', (req, res) => {
   // set id based on what the next index of the array will be
   req.body.id = animals.length.toString();
-  
-  res.json(req.body);
+
+  // add animal to json file and animals array in this function
+  const animal = createNewAnimal(req.body, animals);
+
+  res.json(animal);
 });
 
 
